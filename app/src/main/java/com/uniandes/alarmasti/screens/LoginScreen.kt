@@ -66,7 +66,11 @@ fun LoginScreen(navController: NavHostController) {
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
-                        onClick = { /* Lógica login */ },
+                        onClick = {
+                            navController.navigate("alarms") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A3CFF)),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier

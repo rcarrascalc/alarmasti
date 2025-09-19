@@ -7,6 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.uniandes.alarmasti.screens.AlarmsScreen
 import com.uniandes.alarmasti.screens.CreateAccountScreen
 import com.uniandes.alarmasti.screens.LoginScreen
 
@@ -22,7 +23,9 @@ class MainActivity : ComponentActivity() {
                     startDestination = "login"
                 ) {
                     composable("login") { LoginScreen(navController) }
-                    composable("register") { CreateAccountScreen(navController) }
+                    composable("register") { CreateAccountScreen(navController)}
+                    composable("alarms") { AlarmsScreen(navController) }
+
                 }
             }
         }
