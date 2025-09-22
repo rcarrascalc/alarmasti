@@ -1,7 +1,5 @@
 package com.uniandes.alarmasti.screens
 
-
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.uniandes.alarmasti.navigation.RootScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,18 +24,14 @@ fun CreateAccountScreen(navController: NavController) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Crear Cuenta", color = Color.White) },
+                title = { Text("Crear Cuenta") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = "Atrás",
-                            tint = Color.White
-                        )
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFF4A3CFF) // mismo color que el botón login
+                    containerColor = Color(0xFFC9C5EC)
                 )
             )
         }
@@ -45,8 +40,7 @@ fun CreateAccountScreen(navController: NavController) {
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(24.dp)
-                .fillMaxSize()
-                .background(Color.White),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             OutlinedTextField(
@@ -82,8 +76,10 @@ fun CreateAccountScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    // Aquí lógica para crear cuenta
-                    navController.popBackStack() // volver al login
+                    // 👇 Navegar al Main y limpiar el backstack (para que no vuelva a login/crear cuenta)
+                    navController.navigate(RootScreen.Main.route) {
+                        popUpTo(RootScreen.Login.route) { inclusive = true }
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A3CFF)),
                 shape = RoundedCornerShape(12.dp),

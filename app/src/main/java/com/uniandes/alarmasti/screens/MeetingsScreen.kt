@@ -1,0 +1,96 @@
+package com.uniandes.alarmasti.screens
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.uniandes.alarmasti.ui.AppTopBar
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MeetingsScreen() {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Reuniones") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFCBCAE9),
+                    titleContentColor = Color.Black
+                )
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { /* TODO: Agregar reunión */ },
+                containerColor = Color(0xFF4A3CFF) // Morado fuerte
+            ) {
+                Text("+", color = Color.White, style = MaterialTheme.typography.titleLarge)
+            }
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(16.dp)
+        ) {
+            Spacer(modifier = Modifier.height(36.dp))
+            MeetingItem("Reunión con TI", "09:00 AM")
+            Spacer(modifier = Modifier.height(20.dp))
+            MeetingItem("Reunión con ADM", "12:00 PM")
+        }
+    }
+}
+
+@Composable
+fun MeetingItem(title: String, time: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFCBCAE9)) // Lila
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Avatar redondo con inicial
+            Surface(
+                shape = CircleShape,
+                color = Color(0xFF4A3CFF), // Morado fuerte
+                modifier = Modifier.size(40.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = title.first().toString(), // Inicial dinámica
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Información de la reunión
+            Column(modifier = Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.titleMedium)
+                Text(time, style = MaterialTheme.typography.bodyMedium)
+            }
+
+            // Botón Ver
+            Button(
+                onClick = { /* TODO: Acción ver reunión */ },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A3CFF)),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Text("Ver", color = Color.White)
+            }
+        }
+    }
+}
