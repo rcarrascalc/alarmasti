@@ -1,7 +1,10 @@
 package com.uniandes.alarmasti.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -21,7 +24,22 @@ fun AlarmsScreen(navController: NavHostController) {
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFFCBCAE9),
                     titleContentColor = Color.Black
-                )
+                ),
+                actions = {
+                    IconButton(
+                        onClick = {
+                            navController.navigate("login") {
+
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ExitToApp,
+                            contentDescription = "Salir",
+                            tint = Color.Black
+                        )
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -40,22 +58,28 @@ fun AlarmsScreen(navController: NavHostController) {
                 .padding(16.dp)
         ) {
             Spacer(modifier = Modifier.height(36.dp))
-            AlarmItem("09:00 AM", "Levantarse")
+            AlarmItem("09:00 AM", "Levantarse", navController)
             Spacer(modifier = Modifier.height(20.dp))
-            AlarmItem("12:00 AM", "Tareas diarias")
+            AlarmItem("12:00 AM", "Tareas diarias", navController)
         }
     }
 }
 
 
 @Composable
-fun AlarmItem(time: String, label: String) {
+fun AlarmItem(
+    time: String,
+    label: String,
+    navController: NavHostController
+) {
     var isEnabled by remember { mutableStateOf(true) }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { navController.navigate(AlarmNavScreen.CreateAlarm.route) }, // 👉 Navegar al crear alarma
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp), // sombra ligera
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFD0CFEA))
     ) {
         Row(
@@ -87,3 +111,4 @@ fun AlarmItem(time: String, label: String) {
         }
     }
 }
+

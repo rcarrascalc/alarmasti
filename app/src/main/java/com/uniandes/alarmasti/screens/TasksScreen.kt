@@ -3,17 +3,20 @@ package com.uniandes.alarmasti.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.uniandes.alarmasti.ui.AppTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasksScreen() {
+fun TasksScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -21,7 +24,25 @@ fun TasksScreen() {
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFFCBCAE9),
                     titleContentColor = Color.Black
-                )
+                ),
+                actions = {
+                    IconButton(
+                        onClick = {
+                            navController.navigate("login") {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ExitToApp,
+                            contentDescription = "Salir",
+                            tint = Color.Black
+                        )
+                    }
+                }
             )
         },
         floatingActionButton = {

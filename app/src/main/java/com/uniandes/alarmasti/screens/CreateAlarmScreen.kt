@@ -1,17 +1,28 @@
 package com.uniandes.alarmasti.screens
 
 import android.widget.NumberPicker
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import com.uniandes.alarmasti.ui.AppTopBar
@@ -28,7 +39,7 @@ fun CreateAlarmScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Crear Alarma") },
+                title = { Text("Alarma") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
@@ -76,7 +87,7 @@ fun CreateAlarmScreen(navController: NavController) {
 
 
             }
-
+            Spacer(modifier = Modifier.height(36.dp))
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
@@ -109,96 +120,165 @@ fun TimePickerWithAmPm(
     onTimeChange: (Int, Int, Int) -> Unit,
     onAmPmChange: (Boolean) -> Unit
 ) {
+    var hourText by remember { mutableStateOf(if (hour % 12 == 0) "12" else (hour % 12).toString()) }
+    var minuteText by remember { mutableStateOf(minute.toString().padStart(2, '0')) }
+    var secondText by remember { mutableStateOf(second.toString().padStart(2, '0')) }
+
+    LaunchedEffect(hour) { hourText = if (hour % 12 == 0) "12" else (hour % 12).toString() }
+    LaunchedEffect(minute) { minuteText = minute.toString().padStart(2, '0') }
+    LaunchedEffect(second) { secondText = second.toString().padStart(2, '0') }
+
+    fun displayHourTo24(displayHour: Int, am: Boolean): Int {
+        return if (am) {
+            if (displayHour == 12) 0 else displayHour
+        } else {
+            if (displayHour == 12) 12 else displayHour + 12
+        }
+    }
+
+    @Composable
+    fun TimeSquareField(
+        text: String,
+        onTextChange: (String) -> Unit
+    ) {
+        TextField(
+            value = text,
+            onValueChange = { new ->
+                if (new.length <= 2 && (new.isEmpty() || new.all { it.isDigit() })) {
+                    onTextChange(new)
+                }
+            },
+            textStyle = androidx.compose.ui.text.TextStyle(
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            ),
+            singleLine = true,
+            modifier = Modifier.size(80.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFCBCAE9),
+                unfocusedContainerColor = Color(0xFFCBCAE9),
+                disabledContainerColor = Color(0xFFCBCAE9),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                cursorColor = Color.Black
+            ),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            placeholder = {}
+        )
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxWidth()
     ) {
-        // === Hora ===
+        // Hora
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            AndroidView(
-                factory = { context ->
-                    NumberPicker(context).apply {
-                        minValue = 1
-                        maxValue = 12
-                        value = if (hour % 12 == 0) 12 else hour % 12
-                        setOnValueChangedListener { _, _, newVal ->
-                            val adjustedHour = if (isAm) newVal % 12 else (newVal % 12) + 12
-                            onTimeChange(adjustedHour, minute, second)
-                        }
-                    }
-                },
-                modifier = Modifier.width(80.dp).height(100.dp)
-            )
-            Text("Horas", style = MaterialTheme.typography.bodySmall)
+            TimeSquareField(text = hourText, onTextChange = { new ->
+                hourText = new
+                val parsed = new.toIntOrNull()
+                if (parsed != null && parsed in 1..12) {
+                    val h24 = displayHourTo24(parsed, isAm)
+                    onTimeChange(h24, minute, second)
+                }
+            })
+            Text("Horas", style = MaterialTheme.typography.bodySmall, color = Color.DarkGray)
         }
 
-        // === Minutos ===
+        Text(
+            ":",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
+
+        // Minutos
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            AndroidView(
-                factory = { context ->
-                    NumberPicker(context).apply {
-                        minValue = 0
-                        maxValue = 59
-                        value = minute
-                        setFormatter { i -> String.format("%02d", i) }
-                        setOnValueChangedListener { _, _, newVal ->
-                            onTimeChange(hour, newVal, second)
-                        }
-                    }
-                },
-                modifier = Modifier.width(80.dp).height(100.dp)
-            )
-            Text("Minutos", style = MaterialTheme.typography.bodySmall)
+            TimeSquareField(text = minuteText, onTextChange = { new ->
+                minuteText = new
+                val parsed = new.toIntOrNull()
+                if (parsed != null && parsed in 0..59) {
+                    onTimeChange(hour, parsed, second)
+                }
+            })
+            Text("Minutos", style = MaterialTheme.typography.bodySmall, color = Color.DarkGray)
         }
 
-        // === Segundos ===
+        Text(
+            ":",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
+
+
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            AndroidView(
-                factory = { context ->
-                    NumberPicker(context).apply {
-                        minValue = 0
-                        maxValue = 59
-                        value = second
-                        setFormatter { i -> String.format("%02d", i) }
-                        setOnValueChangedListener { _, _, newVal ->
-                            onTimeChange(hour, minute, newVal)
-                        }
-                    }
-                },
-                modifier = Modifier.width(80.dp).height(100.dp)
-            )
-            Text("Segundos", style = MaterialTheme.typography.bodySmall)
+            TimeSquareField(text = secondText, onTextChange = { new ->
+                secondText = new
+                val parsed = new.toIntOrNull()
+                if (parsed != null && parsed in 0..59) {
+                    onTimeChange(hour, minute, parsed)
+                }
+            })
+            Text("Segundos", style = MaterialTheme.typography.bodySmall, color = Color.DarkGray)
         }
 
-        // === AM/PM ===
-        Column(
+        Spacer(Modifier.width(12.dp))
+
+        AmPmSelector(isAm = isAm, onAmPmChange = onAmPmChange)
+    }
+}
+
+
+@Composable
+fun AmPmSelector(
+    isAm: Boolean,
+    onAmPmChange: (Boolean) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .height(80.dp)
+            .width(80.dp)
+            .border(2.dp, Color(0xFF393B40), shape = RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(16.dp)),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Box(
             modifier = Modifier
-                .width(70.dp)
-                .height(100.dp),
-            verticalArrangement = Arrangement.SpaceEvenly
+                .fillMaxWidth()
+                .weight(1f)
+                .background(Color(0xFFFFEFEE))
+                .clickable { onAmPmChange(true) },
+            contentAlignment = Alignment.Center
         ) {
-            Button(
-                onClick = { onAmPmChange(true) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isAm) Color(0xFFFFEBEE) else Color.LightGray
-                ),
-                shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-                modifier = Modifier.fillMaxWidth().weight(1f)
-            ) {
-                Text("AM", color = if (isAm) Color.Red else Color.Black)
-            }
-            Button(
-                onClick = { onAmPmChange(false) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (!isAm) Color(0xFFDDD6F3) else Color.LightGray
-                ),
-                shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
-                modifier = Modifier.fillMaxWidth().weight(1f)
-            ) {
-                Text("PM", color = if (!isAm) Color.DarkGray else Color.Black)
-            }
+            Text(
+                "AM",
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF781E19)
+            )
+        }
+
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .background(Color(0xFFCBCAE9))
+                .clickable { onAmPmChange(false) },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                "PM",
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF393B40)
+            )
         }
     }
 }
+
 

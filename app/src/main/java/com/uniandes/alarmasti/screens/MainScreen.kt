@@ -31,10 +31,9 @@ fun MainScreen() {
             ) {
                 // Pantallas de bottom nav
                 composable(BottomNavScreen.Alarms.route) { AlarmsScreen(navController) }
-                composable(BottomNavScreen.Tasks.route) { TasksScreen() }
-                composable(BottomNavScreen.Meetings.route) { MeetingsScreen() }
+                composable(BottomNavScreen.Tasks.route) { TasksScreen(navController) }
+                composable(BottomNavScreen.Meetings.route) { MeetingsScreen(navController) }
 
-                // Pantalla interna
                 composable(AlarmNavScreen.CreateAlarm.route) { CreateAlarmScreen(navController) }
             }
         }
@@ -56,7 +55,6 @@ fun BottomNavigationBar(navController: NavHostController) {
                 selected = currentRoute == screen.route,
                 onClick = {
                     navController.navigate(screen.route) {
-                        // Evitar duplicados en el backstack
                         popUpTo(BottomNavScreen.Alarms.route)
                         launchSingleTop = true
                     }
